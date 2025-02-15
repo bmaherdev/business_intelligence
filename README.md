@@ -19,6 +19,8 @@
 
 ### Physician Data:
 
+- https://healthcareworkforce.georgia.gov/main-publications-reports/data-publications/physicians-specialty-county
+
 - 2013 Rate and Rank Data.pdf
 - 2015 Rate and Rank Data.pdf
 - 2017 Physicians Rate and Rank Report.pdf
