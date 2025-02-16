@@ -2,9 +2,12 @@
 
 ## Data Sources
 
-### Diabetes Data:
+### Master_Data_Files
+- Unconverted Data Directly from Data Sources
 
-- https://gis.cdc.gov/grasp/diabetes/diabetesatlas-surveillance.html#
+### Diabetes Data:
+- Data Source:
+    - https://gis.cdc.gov/grasp/diabetes/diabetesatlas-surveillance.html#
 
 - DiabetesAtlas_CountyData_2013.csv
 - DiabetesAtlas_CountyData_2015.csv
@@ -12,16 +15,16 @@
 - DiabetesAtlas_CountyData_2020.csv
 
 ### Income Data:
-
-- https://georgiadata.org/data/data-tables?field_category_target_id=23
+- Data Source:
+    - https://georgiadata.org/data/data-tables?field_category_target_id=23
 
 - economics_24.csv
 
 ### Physician Data:
+- Data Source:
+    - https://healthcareworkforce.georgia.gov/main-publications-reports/data-publications/physicians-specialty-county
 
-- https://healthcareworkforce.georgia.gov/main-publications-reports/data-publications/physicians-specialty-county
-
-- 2013 Rate and Rank Data.pdf
-- 2015 Rate and Rank Data.pdf
-- 2017 Physicians Rate and Rank Report.pdf
-- 2020_Rate and Rank.pdf
+- 2013_Rate_and_Rank.csv
+- 2015_Rate_and_Rank.csv
+- 2017_Rate_and_Rank.csv
+- 2020_Rate_and_Rank.csv
