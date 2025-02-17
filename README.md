@@ -1,4 +1,4 @@
-# mist5620
+# Business Intelligence Group 4
 
 ## Data Sources
 
