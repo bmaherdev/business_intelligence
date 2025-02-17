@@ -8,6 +8,9 @@ library(tidyverse)
 getwd()
 
 
+
+
+
 #### - - - - - - - - - - Import diabetes datasets - - - - - - - - - - -
 
 diabetes_2013 <- read_csv("DiabetesAtlas_CountyData_2013.csv", skip = 2)
@@ -62,12 +65,12 @@ income_long <- income %>%
   filter(!County %in% excluded_values & !is.na(County) & !is.na(`Per Capita Income`)) %>%
   # Select only relevant columns
   select(County, Year, `Per Capita Income`) %>%
-# Display the cleaned dataset
-arrange(County, Year)
+  # Display the cleaned dataset
+  arrange(County, Year)
 print(income_long)
 
-    
-    
+
+
 #### - - - - - - - - - - Import physician datasets - - - - - - - - - - -
 
 ###Import physician datasets
@@ -83,3 +86,24 @@ physician_merged <- bind_rows(physician_2013, physician_2015, physician_2017, ph
   arrange(County, Year)
 # Print merged dataset
 print(physician_merged)
+
+
+
+
+#### - - - - - - - - - - Join Tibbles - - - - - - - - - -
+
+
+# Perform the full join on County and Year
+final_data <- list(diabetes_merged, income_long, physician_merged) %>%
+  reduce(full_join, by = c("County", "Year")) %>%
+  arrange(County, Year) %>%
+  # Select only the needed columns and rename them in one step
+  select(
+    County, Year, DiabetesCases = Number, 
+    PerCapitaIncome = `Per Capita Income`, Population, 
+    TotalPhysicians = `Total Physicians`, 
+    PhysicianRatePer100000 = `Rate Per 100000`
+  )
+
+# Print the final cleaned dataset
+print(final_data)
