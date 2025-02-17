@@ -8,9 +8,6 @@ library(tidyverse)
 getwd()
 
 
-
-
-
 #### - - - - - - - - - - Import diabetes datasets - - - - - - - - - - -
 
 diabetes_2013 <- read_csv("DiabetesAtlas_CountyData_2013.csv", skip = 2)
