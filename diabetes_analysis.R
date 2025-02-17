@@ -1,13 +1,9 @@
 ###Install packages
 install.packages(tidyverse)
-
 ###Load libraries
 library(tidyverse)
-
 ###Get working directory
 getwd()
-
-
 
 
 
@@ -89,9 +85,7 @@ print(physician_merged)
 
 
 
-
 #### - - - - - - - - - - Join Tibbles - - - - - - - - - -
-
 
 # Perform the full join on County and Year
 final_data <- list(diabetes_merged, income_long, physician_merged) %>%
