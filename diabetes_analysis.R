@@ -43,28 +43,28 @@ print(diabetes_merged)
 
 income <- read_csv("economics_24.csv")
 
-    # Define values to exclude
-    excluded_values <- c("GEORGIA", "SOUTHEAST", "UNITED STATES", "NA", 
-                         "Source:", "Notes:", "Per Capita Personal Income", 
-                         "The local area estimates", "Net earnings")
-    # Reshape the data into long format
-    income_long <- income %>%
-      pivot_longer(
-        cols = c("2013 Per Capita Personal Income", 
-                 "2015 Per Capita Personal Income", 
-                 "2017 Per Capita Personal Income", 
-                 "2020 Per Capita Personal Income"),
-        names_to = "Year", values_to = "Per Capita Income") %>%
-      # Extract only the year as a numeric column
-      mutate(Year = as.numeric(str_extract(Year, "\\d{4}")),
-             `Per Capita Income` = parse_number(`Per Capita Income`)) %>%
-      # Remove unwanted rows AND filter out NA values
-      filter(!County %in% excluded_values & !is.na(County) & !is.na(`Per Capita Income`)) %>%
-      # Select only relevant columns
-      select(County, Year, `Per Capita Income`) %>%
-    # Display the cleaned dataset
-    arrange(County, Year)
-    print(income_long)
+# Define values to exclude
+excluded_values <- c("GEORGIA", "SOUTHEAST", "UNITED STATES", "NA", 
+                     "Source:", "Notes:", "Per Capita Personal Income", 
+                     "The local area estimates", "Net earnings")
+# Reshape the data into long format
+income_long <- income %>%
+  pivot_longer(
+    cols = c("2013 Per Capita Personal Income", 
+             "2015 Per Capita Personal Income", 
+             "2017 Per Capita Personal Income", 
+             "2020 Per Capita Personal Income"),
+    names_to = "Year", values_to = "Per Capita Income") %>%
+  # Extract only the year as a numeric column
+  mutate(Year = as.numeric(str_extract(Year, "\\d{4}")),
+         `Per Capita Income` = parse_number(`Per Capita Income`)) %>%
+  # Remove unwanted rows AND filter out NA values
+  filter(!County %in% excluded_values & !is.na(County) & !is.na(`Per Capita Income`)) %>%
+  # Select only relevant columns
+  select(County, Year, `Per Capita Income`) %>%
+# Display the cleaned dataset
+arrange(County, Year)
+print(income_long)
 
     
     
