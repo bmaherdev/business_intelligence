@@ -1,5 +1,13 @@
 # Business Intelligence Group 4
 
+## Group Members
+- Eli Abdou
+- Amir Barnes
+- Bryan Hatcher
+- Kyle Huemme
+- Brandon Maher
+- Tom Robie
+
 ## Data Sources
 
 ### Master_Data_Files
