@@ -28,6 +28,12 @@
 
 - economics_24.csv
 
+### Land Area:
+- Data Source
+    - https://georgiadata.org/data/data-tables
+    
+- land_area.csv
+
 ### Physician Data:
 - Data Source:
     - https://healthcareworkforce.georgia.gov/main-publications-reports/data-publications/physicians-specialty-county
