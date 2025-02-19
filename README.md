@@ -34,6 +34,17 @@
     
 - land_area.csv
 
+### Obesity Data
+- Data Source
+    - https://gis.cdc.gov/grasp/diabetes/diabetesatlas-surveillance.html#
+
+- obesity.csv
+
+### Physical Inactivity Data
+- Data Source:
+    - https://gis.cdc.gov/grasp/diabetes/diabetesatlas-surveillance.html#
+- physical_inactivity.csv
+
 ### Physician Data:
 - Data Source:
     - https://healthcareworkforce.georgia.gov/main-publications-reports/data-publications/physicians-specialty-county
