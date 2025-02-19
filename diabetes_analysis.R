@@ -111,3 +111,6 @@ final_data <- list(diabetes_merged, income_long, physician_merged, obesity, phys
 
 # Print the final cleaned dataset
 print(final_data)
+
+# Export final_data to CSV
+write_csv(final_data, "final_data.csv")
