@@ -93,7 +93,7 @@ physician_merged <- bind_rows(physician_2013, physician_2015, physician_2017, ph
 print(physician_merged)
 
 #### - - - - - - - - - - Join Tibbles - - - - - - - - - - -
-final_data <- list(diabetes_merged, income_long, physician_merged, obesity, physical_inactivity) %>%
+unfinal_data <- list(diabetes_merged, income_long, physician_merged, obesity, physical_inactivity) %>%
   reduce(full_join, by = c("County", "Year")) %>%
   full_join(land_area, by = "County") %>%
   arrange(County, Year) %>%
@@ -109,8 +109,31 @@ final_data <- list(diabetes_merged, income_long, physician_merged, obesity, phys
   # Add Population Density column
   mutate(PopulationDensity = Population / SqMiles)
 
+# Turn variables into rates
+unfinal_data <- unfinal_data %>%
+  mutate(DiabetesRate = DiabetesCases / Population, PhysicianDensity = TotalPhysicians / Population, ObesityRate = ObesityCases / Population, InactivityRate = PhysicallyInactiveCases / Population)
+
+# Create table with variables of intrest
+final_data <- unfinal_data %>%
+  select(County, Year, DiabetesRate, PerCapitaIncome, PhysicianDensity, ObesityRate, InactivityRate, PopulationDensity)
+
 # Print the final cleaned dataset
 print(final_data)
 
 # Export final_data to CSV
 write_csv(final_data, "final_data.csv")
+
+# Install and load the stargazer package
+install.packages("stargazer")
+library(stargazer)
+
+# Transform tibble into dataframe
+final.data <- as.data.frame(final_data)
+final.data
+
+# Create descriptive table
+stargazer(final.data[3 : 8], type = "html", title="Descriptive Statistics", digits = 2, out = "descriptiveTable.html")
+
+#Create correlations matrix
+correlations <- cor(final.data[3 : 8])
+stargazer(correlations, title = "Correlation Matrix", out = "CorrelationMatrix.html")
