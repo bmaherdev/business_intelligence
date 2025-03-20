@@ -1,8 +1,14 @@
 ### Install packages (if not already installed)
-install.packages("tidyverse")
+#install.packages("tidyverse")
+#install.packages("caret")
+#install.packages("stargazer")
+#install.packages("ranger")
 
 ### Load libraries
 library(tidyverse)
+library(caret)
+library(stargazer)
+library(ranger)
 
 ### Get working directory
 getwd()
@@ -123,10 +129,6 @@ print(final_data)
 # Export final_data to CSV
 write_csv(final_data, "final_data.csv")
 
-# Install and load the stargazer package
-install.packages("stargazer")
-library(stargazer)
-
 # Transform tibble into dataframe
 final.data <- as.data.frame(final_data)
 final.data
@@ -137,3 +139,87 @@ stargazer(final.data[3 : 8], type = "html", title="Descriptive Statistics", digi
 #Create correlations matrix
 correlations <- cor(final.data[3 : 8])
 stargazer(correlations, title = "Correlation Matrix", out = "CorrelationMatrix.html")
+
+#Control for year
+final_data  <- final_data  %>% 
+  mutate(YearN = case_when(
+    Year == "2013" ~ 0,
+    Year == "2015" ~ 1,
+    Year == "2017" ~ 2,
+    Year == "2020" ~ 3
+  ))
+
+# Prepare data for model by removing unnecessary variables
+final_data <- final_data %>%
+  select (DiabetesRate, PerCapitaIncome, PhysicianDensity, ObesityRate, InactivityRate, PopulationDensity, YearN)
+
+
+### Create Machine Learning Model ###
+
+finalData <- drop_na(final_data)
+
+set.seed(15L)
+
+trainIndex <- createDataPartition( finalData$DiabetesRate, p= 0.7, list = FALSE, times = 1)
+trainIndex
+
+##Create training and test data 
+##Data set for training, we learnt the use of [ ] in Data Manipulation 1
+train_set <- finalData[trainIndex, ]
+train_set
+
+##Data set for testing
+test_set <- finalData[-trainIndex, ]
+
+
+##Stargazer only works with dataframes
+##Transform our tibble into a dataframe - we learnt it in data manipulation class
+train_set_df<- as.data.frame(train_set)
+train_set_df
+
+##Use the stargazer command to create the descriptive table
+stargazer(train_set_df, type = "text", title="Descriptive Statistics", digits = 1, out = "descriptiveStatistics.txt")
+
+##Calculate correlations 
+##Correlations between numeric variables
+#GDP_train_num <- GDP_train %>% 
+#  select_if(is.numeric) %>% 
+#  select(-c("Year"))
+
+cor(train_set)
+
+###Build the model using the test set and linear regression
+## I selected 3 independent variables HB41_CurrentSmoker, HO49_Diabetes, HO33_OverwtAdult
+model <- train(DiabetesRate ~ PerCapitaIncome + PhysicianDensity + ObesityRate + InactivityRate + YearN, data = train_set, method = "lm")
+
+###Display the model
+summary(model)
+
+###Evaluate the model performance
+
+##Predict the outcomes in the test set
+p <- predict(model, test_set) 
+
+##Calculate RMSE and R2 for the prediction 
+postResample(pred = p, test_set$DiabetesRate)
+
+### Predicted vs observed data in a graph
+##Graph the results in the linear model (LM)
+test_set %>% 
+  mutate(predicted = predict(model, test_set)) %>% 
+  ggplot(aes(predicted, DiabetesRate)) +
+  geom_point(colour = "blue", alpha = 0.3) +
+  labs(title = "Predicted vs Observed") + theme_bw(18)
+
+
+##Run the model with the ranger algorithm, which is a random forest algorithm
+model2 <- train(DiabetesRate ~ PerCapitaIncome + PhysicianDensity + ObesityRate + InactivityRate + YearN, data = train_set, method = "ranger")
+
+##Print model 2
+model2
+
+##Predict the outcomes in the test set
+p1 <- predict(model2, test_set) 
+
+##Evaluate model performance using RMSE and R2
+postResample(pred = p1, test_set$DiabetesRate)
