@@ -3,12 +3,14 @@
 #install.packages("caret")
 #install.packages("stargazer")
 #install.packages("ranger")
+install.packages("broom")
 
 ### Load libraries
 library(tidyverse)
 library(caret)
 library(stargazer)
 library(ranger)
+library(broom)
 
 ### Get working directory
 getwd()
@@ -154,9 +156,14 @@ final_data <- final_data %>%
   select (DiabetesRate, PerCapitaIncome, PhysicianDensity, ObesityRate, InactivityRate, PopulationDensity, YearN)
 
 
-### Create Machine Learning Model ###
-
 finalData <- drop_na(final_data)
+
+# Explanatory/inference model
+lm(DiabetesRate ~ PerCapitaIncome + PhysicianDensity + ObesityRate + InactivityRate + YearN, data = finalData) %>%
+tidy()
+
+#ML Model
+
 
 set.seed(15L)
 
@@ -190,7 +197,7 @@ cor(train_set)
 
 ###Build the model using the test set and linear regression
 ## I selected 3 independent variables HB41_CurrentSmoker, HO49_Diabetes, HO33_OverwtAdult
-model <- train(DiabetesRate ~ PerCapitaIncome + PhysicianDensity + ObesityRate + InactivityRate + YearN, data = train_set, method = "lm")
+model <- train(DiabetesRate ~ ObesityRate + InactivityRate + YearN, data = train_set, method = "lm")
 
 ###Display the model
 summary(model)
@@ -203,17 +210,8 @@ p <- predict(model, test_set)
 ##Calculate RMSE and R2 for the prediction 
 postResample(pred = p, test_set$DiabetesRate)
 
-### Predicted vs observed data in a graph
-##Graph the results in the linear model (LM)
-test_set %>% 
-  mutate(predicted = predict(model, test_set)) %>% 
-  ggplot(aes(predicted, DiabetesRate)) +
-  geom_point(colour = "blue", alpha = 0.3) +
-  labs(title = "Predicted vs Observed") + theme_bw(18)
-
-
 ##Run the model with the ranger algorithm, which is a random forest algorithm
-model2 <- train(DiabetesRate ~ PerCapitaIncome + PhysicianDensity + ObesityRate + InactivityRate + YearN, data = train_set, method = "ranger")
+model2 <- train(DiabetesRate ~ ObesityRate + InactivityRate + YearN, data = train_set, method = "ranger")
 
 ##Print model 2
 model2
