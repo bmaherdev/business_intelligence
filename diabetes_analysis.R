@@ -1,55 +1,55 @@
-### Install packages (if not already installed)
+## - - - - - - - - - -Uncomment to install any needed packages - - - - - - - - - -
 #install.packages("tidyverse")
 #install.packages("caret")
 #install.packages("stargazer")
 #install.packages("ranger")
-install.packages("broom")
+#install.packages("broom")
 
-### Load libraries
+## - - - - - - - - - - - Load required libraries - - - - - - - - - -
 library(tidyverse)
 library(caret)
 library(stargazer)
 library(ranger)
 library(broom)
 
-### Get working directory
+## - - - - - - - - - - Check working directory - - - - - - - - - - 
 getwd()
 
-#### - - - - - - - - - - Import land area dataset - - - - - - - - - - -
+## - - - - - - - - - - Import land area dataset - - - - - - - - - - -
 land_area <- read_csv("land_area.csv") %>%
   rename(SqMiles = `SqMiles`) %>%  
   mutate(County = str_to_upper(County)) %>%  
   select(County, SqMiles)
-
 print(land_area)
 
-#### - - - - - - - - - - Import obesity dataset - - - - - - - - - - -
+## - - - - - - - - - - Import obesity dataset - - - - - - - - - - -
 obesity <- read_csv("obesity.csv") %>%
   rename(ObesityCases = `Number`) %>%  
   mutate(County = str_to_upper(County))  
-
 print(obesity)
 
-#### - - - - - - - - - - Import physical inactivity dataset - - - - - - - - - - -
+## - - - - - - - - - - Import physical inactivity dataset - - - - - - - - - - -
 physical_inactivity <- read_csv("physical_inactivity.csv") %>%
   rename(PhysicallyInactiveCases = `Number`) %>%  
   mutate(County = str_to_upper(County))  
-
 print(physical_inactivity)
 
-#### - - - - - - - - - - Import diabetes datasets - - - - - - - - - - -
+## - - - - - - - - - - Import diabetes datasets - - - - - - - - - - -
 diabetes_2013 <- read_csv("DiabetesAtlas_CountyData_2013.csv", skip = 2)
 diabetes_2015 <- read_csv("DiabetesAtlas_CountyData_2015.csv", skip = 2)
 diabetes_2017 <- read_csv("DiabetesAtlas_CountyData_2017.csv", skip = 2)
 diabetes_2020 <- read_csv("DiabetesAtlas_CountyData_2020.csv", skip = 2)
 
+## - - - - - - - - - - Create tibbles for each year - - - - - - - - - - 
 diabetes_2013 <- diabetes_2013 %>% mutate(Year = 2013)
 diabetes_2015 <- diabetes_2015 %>% mutate(Year = 2015)
 diabetes_2017 <- diabetes_2017 %>% mutate(Year = 2017)
 diabetes_2020 <- diabetes_2020 %>% mutate(Year = 2020)
 
+## - - - - - - - - - -  Set uniform column names - - - - - - - - - - 
 colnames(diabetes_2013) <- colnames(diabetes_2015) <- colnames(diabetes_2017) <- colnames(diabetes_2020)
 
+## - - - - - - - - - - Standardize county column - - - - - - - - - - 
 clean_county <- function(df) {
   df %>%
     mutate(County = str_replace(County, " County$", "") %>% str_to_upper())
@@ -60,14 +60,13 @@ diabetes_2015 <- clean_county(diabetes_2015)
 diabetes_2017 <- clean_county(diabetes_2017)
 diabetes_2020 <- clean_county(diabetes_2020)
 
+## - - - - - - - - - - Merge the data by county and year - - - - - - - - - - 
 diabetes_merged <- bind_rows(diabetes_2013, diabetes_2015, diabetes_2017, diabetes_2020) %>%
   arrange(County, Year)
-
 print(diabetes_merged)
 
-#### - - - - - - - - - - Import income dataset - - - - - - - - - - -
+## - - - - - - - - - - Import income dataset - - - - - - - - - - -
 income <- read_csv("economics_24.csv")
-
 excluded_values <- c("GEORGIA", "SOUTHEAST", "UNITED STATES", "NA", 
                      "Source:", "Notes:", "Per Capita Personal Income", 
                      "The local area estimates", "Net earnings")
@@ -84,10 +83,9 @@ income_long <- income %>%
   filter(!County %in% excluded_values & !is.na(County) & !is.na(`Per Capita Income`)) %>%
   select(County, Year, `Per Capita Income`) %>%
   arrange(County, Year)
-
 print(income_long)
 
-#### - - - - - - - - - - Import physician datasets - - - - - - - - - - -
+## - - - - - - - - - - Import physician datasets - - - - - - - - - - -
 physician_2013 <- read_csv("2013_Rate_and_Rank.csv")
 physician_2015 <- read_csv("2015_Rate_and_Rank.csv")
 physician_2017 <- read_csv("2017_Rate_and_Rank.csv")
@@ -97,10 +95,9 @@ physician_merged <- bind_rows(physician_2013, physician_2015, physician_2017, ph
   rename(County = `County Name`) %>%
   mutate(County = str_to_upper(County)) %>%
   arrange(County, Year)
-
 print(physician_merged)
 
-#### - - - - - - - - - - Join Tibbles - - - - - - - - - - -
+## - - - - - - - - - - Join tibbles - - - - - - - - - - -
 unfinal_data <- list(diabetes_merged, income_long, physician_merged, obesity, physical_inactivity) %>%
   reduce(full_join, by = c("County", "Year")) %>%
   full_join(land_area, by = "County") %>%
@@ -117,32 +114,30 @@ unfinal_data <- list(diabetes_merged, income_long, physician_merged, obesity, ph
   # Add Population Density column
   mutate(PopulationDensity = Population / SqMiles)
 
-# Turn variables into rates
+## - - - - - - - - - -  Turn variables into rates - - - - - - - - - - 
 unfinal_data <- unfinal_data %>%
   mutate(DiabetesRate = DiabetesCases / Population, PhysicianDensity = TotalPhysicians / Population, ObesityRate = ObesityCases / Population, InactivityRate = PhysicallyInactiveCases / Population)
 
-# Create table with variables of intrest
+## - - - - - - - - - -  Create table with variables we are interested in - - - - - - - - - - 
 final_data <- unfinal_data %>%
   select(County, Year, DiabetesRate, PerCapitaIncome, PhysicianDensity, ObesityRate, InactivityRate, PopulationDensity)
-
-# Print the final cleaned dataset
 print(final_data)
 
-# Export final_data to CSV
+## - - - - - - - - - -  Export final_data to CSV - - - - - - - - - - 
 write_csv(final_data, "final_data.csv")
 
-# Transform tibble into dataframe
+## - - - - - - - - - -  Transform final_data tibble into dataframe - - - - - - - - - - 
 final.data <- as.data.frame(final_data)
 final.data
 
-# Create descriptive table
+## - - - - - - - - - -  Create descriptive statistics file using stargazer - - - - - - - - - - 
 stargazer(final.data[3 : 8], type = "html", title="Descriptive Statistics", digits = 2, out = "descriptiveTable.html")
 
-#Create correlations matrix
+## - - - - - - - - - - Create correlations matrix - - - - - - - - - - 
 correlations <- cor(final.data[3 : 8])
 stargazer(correlations, title = "Correlation Matrix", out = "CorrelationMatrix.html")
 
-#Control for year
+## - - - - - - - - - - Assign categories for years - - - - - - - - - - 
 final_data  <- final_data  %>% 
   mutate(YearN = case_when(
     Year == "2013" ~ 0,
@@ -151,73 +146,59 @@ final_data  <- final_data  %>%
     Year == "2020" ~ 3
   ))
 
-# Prepare data for model by removing unnecessary variables
+## - - - - - - - - - - Select variables for model and drop NAs- - - - - - - - - - 
 final_data <- final_data %>%
   select (DiabetesRate, PerCapitaIncome, PhysicianDensity, ObesityRate, InactivityRate, PopulationDensity, YearN)
-
-
 finalData <- drop_na(final_data)
 
-# Explanatory/inference model
+## - - - - - - - - - - Explanatory/inference model - - - - - - - - - - 
 lm(DiabetesRate ~ PerCapitaIncome + PhysicianDensity + ObesityRate + InactivityRate + YearN, data = finalData) %>%
 tidy()
 
-#ML Model
+### - - - - - - - - - - ML Model - - - - - - - - - - 
 
-
+## - - - - - - - - - - Set Seed - - - - - - - - - - 
 set.seed(15L)
 
+## - - - - - - - - - - Set train index, selecting 70% of the data - - - - - - - - - - 
 trainIndex <- createDataPartition( finalData$DiabetesRate, p= 0.7, list = FALSE, times = 1)
 trainIndex
 
-##Create training and test data 
-##Data set for training, we learnt the use of [ ] in Data Manipulation 1
+## - - - - - - - - - - Create train/test split - - - - - - - - - - 
 train_set <- finalData[trainIndex, ]
-train_set
-
-##Data set for testing
 test_set <- finalData[-trainIndex, ]
 
 
-##Stargazer only works with dataframes
-##Transform our tibble into a dataframe - we learnt it in data manipulation class
+## - - - - - - - - - - Transform tibble into dataframe to use with Stargazer - - - - - - - - - - 
 train_set_df<- as.data.frame(train_set)
 train_set_df
 
-##Use the stargazer command to create the descriptive table
+##  - - - - - - - - - - Create a descriptive statistics text file for the training data - - - - - - - - - - 
 stargazer(train_set_df, type = "text", title="Descriptive Statistics", digits = 1, out = "descriptiveStatistics.txt")
 
-##Calculate correlations 
-##Correlations between numeric variables
-#GDP_train_num <- GDP_train %>% 
-#  select_if(is.numeric) %>% 
-#  select(-c("Year"))
-
+## - - - - - - - - - - Calculate correlations - - - - - - - - - - 
 cor(train_set)
 
-###Build the model using the test set and linear regression
+## - - - - - - - - - - Build the model using the test set and linear regression - - - - - - - - - - 
 ## I selected 3 independent variables HB41_CurrentSmoker, HO49_Diabetes, HO33_OverwtAdult
 model <- train(DiabetesRate ~ ObesityRate + InactivityRate + YearN, data = train_set, method = "lm")
 
-###Display the model
+## - - - - - - - - - - Display the model - - - - - - - - - - 
 summary(model)
 
-###Evaluate the model performance
-
-##Predict the outcomes in the test set
+## - - - - - - - - - - Evaluate the model performance - - - - - - - - - - 
+## - - - - - - - - - - Predict the outcomes in the test set - - - - - - - - - - 
 p <- predict(model, test_set) 
 
-##Calculate RMSE and R2 for the prediction 
+## - - - - - - - - - - Calculate RMSE and R2 for the prediction - - - - - - - - - - 
 postResample(pred = p, test_set$DiabetesRate)
 
-##Run the model with the ranger algorithm, which is a random forest algorithm
+## - - - - - - - - - - Run the random forest model with ranger - - - - - - - - - - 
 model2 <- train(DiabetesRate ~ ObesityRate + InactivityRate + YearN, data = train_set, method = "ranger")
-
-##Print model 2
 model2
 
-##Predict the outcomes in the test set
+## - - - - - - - - - - Predict the outcomes in the test set - - - - - - - - - - 
 p1 <- predict(model2, test_set) 
 
-##Evaluate model performance using RMSE and R2
+## - - - - - - - - - - Evaluate model performance using RMSE and R2 - - - - - - - - - - 
 postResample(pred = p1, test_set$DiabetesRate)
