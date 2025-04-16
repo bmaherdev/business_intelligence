@@ -202,3 +202,16 @@ p1 <- predict(model2, test_set)
 
 ## - - - - - - - - - - Evaluate model performance using RMSE and R2 - - - - - - - - - - 
 postResample(pred = p1, test_set$DiabetesRate)
+
+## - - - - - - - - - - Create plot for Actual vs Predicted Diabetes Rate (Linear Model) - - - - - - - - - -
+test_set$predicted_diabetes <- predict(model2, test_set)
+
+ggplot(test_set, aes(x = predicted_diabetes, y = DiabetesRate)) +
+  geom_point(alpha = 0.6, color = "steelblue") +
+  geom_smooth(method = "lm", se = FALSE, color = "darkred") +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray") +
+  labs(title = "Actual vs Predicted Diabetes Rate (Linear Model)",
+       x = "Predicted Diabetes Rate",
+       y = "Actual Diabetes Rate") +
+  theme_minimal() +
+  theme(panel.grid = element_blank())
